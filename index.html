@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LifeQuest — Toronto Mode</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1115">
+<link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="app-header">
+  <div class="brand"><div class="brand-icon">🧭</div><div class="brand-title">LifeQuest <span class="mode">— Toronto Mode</span></div></div>
+  <div class="profile">
+    <div class="level-wrap">
+      <div class="level">Lvl <span id="level">1</span></div>
+      <div class="xp-bar"><div id="xpFill" class="xp-fill" style="width:0%"></div></div>
+      <div class="xp-text"><span id="xpText">0</span> / <span id="nextXp">100</span> XP</div>
+    </div>
+    <button id="openSettings" class="ghost">⚙️</button>
+  </div>
+</header>
+<main class="container">
+  <section class="quick-stats">
+    <div class="stat-card"><div class="stat-title">Streak</div><div class="stat-value"><span id="streak">0</span> days</div></div>
+    <div class="stat-card"><div class="stat-title">Quests Done</div><div class="stat-value" id="questsDone">0</div></div>
+    <div class="stat-card"><div class="stat-title">Neighbourhoods</div><div class="stat-value" id="neighCount">0</div></div>
+    <div class="stat-card"><div class="stat-title">Badges</div><div class="stat-value" id="badgeCount">0</div></div>
+  </section>
+  <section class="filters">
+    <div class="tabs" id="tabs">
+      <button data-filter="all" class="tab active">All</button>
+      <button data-filter="Daily" class="tab">Daily</button>
+      <button data-filter="Work" class="tab">Work</button>
+      <button data-filter="Explore" class="tab">Explore</button>
+      <button data-filter="Wellbeing" class="tab">Wellbeing</button>
+      <button data-filter="Community" class="tab">Community</button>
+      <button data-filter="Creative" class="tab">Creative</button>
+    </div>
+    <div><input id="search" class="search" placeholder="Search quests…"/></div>
+  </section>
+  <section class="new-quest">
+    <h2>Create Quest</h2>
+    <form id="questForm">
+      <div class="grid">
+        <label><span>Title</span><input id="qTitle" required placeholder="e.g., Explore High Park at sunrise"/></label>
+        <label><span>Category</span><select id="qCategory"><option>Daily</option><option>Work</option><option>Explore</option><option>Wellbeing</option><option>Community</option><option>Creative</option></select></label>
+        <label><span>Difficulty</span><select id="qDifficulty"><option>Trivial</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Epic</option></select></label>
+        <label><span>Neighbourhood</span><input id="qNeighbourhood" placeholder="e.g., Kensington, Danforth"/></label>
+        <label><span>Due (optional)</span><input id="qDue" type="date"/></label>
+        <label><span>Notes</span><input id="qNotes" placeholder="Any extra details"/></label>
+      </div>
+      <div class="actions"><button class="primary" type="submit">Add Quest</button><button class="ghost" type="button" id="addSample">Add Sample Pack</button></div>
+    </form>
+  </section>
+  <section class="quests"><h2>Quest Log</h2><div id="questList" class="quest-list"></div><div class="empty" id="emptyState">No quests yet. Forge your path above. 🔨</div></section>
+</main>
+<dialog id="settingsDialog"><form method="dialog" class="settings"><h3>Hero Setup</h3>
+<label><span>Name</span><input id="heroName" placeholder="Your hero name"/></label>
+<label><span>Class</span><select id="heroClass"><option>Ranger</option><option>Barbarian</option><option>Bard</option><option>Druid</option><option>Rogue</option></select></label>
+<p class="hint">Classes grant XP bonuses by category.</p>
+<div class="settings-row"><button class="ghost" id="exportBtn" type="button">Export Data</button>
+<label class="import-label"><input type="file" id="importFile" accept="application/json" hidden/><span class="ghost">Import Data</span></label>
+<button class="danger" id="resetBtn" type="button">Reset</button></div>
+<menu><button value="cancel">Close</button><button id="saveSettings" value="default" class="primary">Save</button></menu>
+</form></dialog>
+<dialog id="toast"><div id="toastMsg"></div></dialog>
+<template id="questItemTpl"><div class="quest-item"><div class="quest-main"><div class="quest-title"></div><div class="quest-meta"></div></div><div class="quest-actions"><button class="ghost complete">Complete</button><button class="ghost edit">Edit</button><button class="ghost danger delete">Delete</button></div></div></template>
+<footer class="footer"><div>Made for Stewart • Offline-first • Data saved locally</div></footer>
+<script src="app.js"></script></body></html>
