@@ -139,3 +139,10 @@ html[data-theme="barddeep"] .settings select {
   background: #0f1218;
   color: #f0f4f2;
 }
+
+/* v8.7 whisper + greeting polish */
+.dm-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 6px 12px rgba(0,0,0,.08);margin-bottom:16px}
+.dm-title{font-size:18px;font-weight:900;margin-bottom:6px}
+.dm-body{opacity:.95;margin-bottom:6px}
+.dm-foot{color:var(--muted);font-size:13px}
+.whisper{margin:14px 0 0 0; color:var(--muted); font-style:italic}

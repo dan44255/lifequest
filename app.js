@@ -16,7 +16,8 @@ let state = {
   filter: 'all',
   search: '',
   quests: [],      // {id,title,category,difficulty,neighbourhood,due,notes,done,createdAt,doneAt}
-  badges: []
+  badges: [],
+  greeting: { date: '', text: '', whisper: '' }
 };
 
 // ====== Storage ======
@@ -130,11 +131,101 @@ function renderHeader(){
   $('#xpFill').style.width = pct+'%';
 }
 
+
+// ====== Seasonal + Daily Greeting (v8.7) ======
+function seasonFor(month){ // 0=Jan
+  if (month==11 || month<=1) return 'winter';   // Dec–Feb
+  if (month>=2 && month<=4) return 'spring';    // Mar–May
+  if (month>=5 && month<=7) return 'summer';    // Jun–Aug
+  return 'autumn';                               // Sep–Nov
+}
+
+const CLASS_LINES = {
+  Ranger: [
+    "The city hides trails only a Ranger can uncover.",
+    "Your boots remember paths the map forgot.",
+    "A quiet street hums with side-quests."
+  ],
+  Druid: [
+    "Green things grow where your focus lands.",
+    "Patience is your greatest spell today.",
+    "A tea, a breath, a tiny ritual—progress."
+  ],
+  Bard: [
+    "Every errand has a rhythm. Find it.",
+    "Your words are small spells. Cast kindly.",
+    "A good tale needs one brave scene."
+  ],
+  Barbarian: [
+    "The world is stubborn. So are you.",
+    "Lift something heavier than your doubts.",
+    "Courage first, clarity next."
+  ],
+  Rogue: [
+    "Slip between distractions like shadow.",
+    "Small heists of time win the day.",
+    "Plan, then pounce."
+  ]
+};
+
+const SEASON_LINES = {
+  winter: [
+    "Frost sharpens the morning. Keep the fire inside.",
+    "Quiet streets; loud resolve.",
+    "Snow hushes the city. Listen for your cue."
+  ],
+  spring: [
+    "Rain polishes the day; new ideas sprout.",
+    "Blossoms and beginnings. Start small.",
+    "The air says ‘again’. Answer it."
+  ],
+  summer: [
+    "Light spills everywhere; pace yourself.",
+    "Heat forgives nothing—hydrate and strike.",
+    "Long days, long XP bars—chip away."
+  ],
+  autumn: [
+    "Leaves drift like unclaimed quests.",
+    "Crisp air, clear choices.",
+    "Harvest the easy wins first."
+  ]
+};
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function updateDailyGreeting(){
+  const today = new Date();
+  const key = today.toDateString();
+  if (state.greeting?.date === key && state.greeting.text) return; // already set for today
+
+  const cls = state.hero.cls || 'Ranger';
+  const s = seasonFor(today.getMonth());
+
+  const lineA = pick(CLASS_LINES[cls] || CLASS_LINES.Ranger);
+  const lineB = pick(SEASON_LINES[s]);
+  const title = state.hero.name ? (state.hero.name + " the " + cls) : ("Adventurer the " + cls);
+  const text = lineB + " " + lineA;
+
+  // light "whisper" that can comment beneath the quest list
+  const whispers = [
+    "Mark one quest as done before noon.",
+    "Two minutes of tidying earns surprise XP.",
+    "If it takes under 5 minutes, do it now.",
+    "One call, one message, one stretch."
+  ];
+  const whisper = pick(whispers);
+
+  state.greeting = { date: key, text, whisper };
+  save();
+}
+
 function renderGreeting(){
+  updateDailyGreeting();
   const el = $('#dmGreeting');
   const name = state.hero.name || 'Adventurer';
-  const lines = [
-    `${name} the ${state.hero.cls}`,
+  el.innerHTML = `<div class="dm-card"><div class="dm-title">${name} the ${state.hero.cls}</div><div class="dm-body">${state.greeting.text}</div><div class="dm-foot">Daily greeting • ${state.greeting.date}</div></div>`;
+  const w = $('#dmWhisper'); if (w) w.textContent = state.greeting.whisper || '';
+} the ${state.hero.cls}`,
     `The wind carries rumors of XP. Sharpen your focus with one clear quest today.`,
     `Your save is local to this device.`
   ];
@@ -237,7 +328,7 @@ function bind(){
 // ====== Boot ======
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    load(); bind(); renderAll();
+    load(); updateDailyGreeting(); bind(); renderAll();
   } catch (e) {
     const b = document.getElementById('debugBanner'); if (b){ b.style.display='inline-block'; b.style.background='#ef4444'; b.textContent = 'Fatal: '+e.message; }
     console.error(e);
