@@ -65,3 +65,47 @@ html[data-theme="barddeep"] .settings input[type="text"], html[data-theme="bardd
 .roll-row{display:flex;align-items:center;gap:10px;margin:8px 0 16px}
 .muted{color:var(--muted);font-size:13px}
 @media (max-width:800px){.grid{grid-template-columns:1fr}.quick-stats{grid-template-columns:repeat(2,1fr)}.xp-bar{width:180px}.search{width:200px}}
+/* Ranger — Deep Verdant */
+html[data-theme="rangerdeep"] {
+  --bg: #0b1d13;
+  --card: #11271b;
+  --text: #e9fceb;
+  --muted: #b5d1b7;
+  --accent: #1f7a45;
+  --accent-2: #a7c957;
+  --danger: #e63946;
+  --border: #184d2c;
+}
+/* Druid — Mossy Green */
+html[data-theme="druidmoss"] {
+  --bg: #1d261d;
+  --card: #2a3228;
+  --text: #eef7ea;
+  --muted: #c3d4c0;
+  --accent: #5a7d4a;
+  --accent-2: #9dbf9e;
+  --danger: #ff704d;
+  --border: #3a473a;
+}
+/* Barbarian — Crimson Forge */
+html[data-theme="barbcrimson"] {
+  --bg: #0b0303;
+  --card: #2a1212;
+  --text: #fff0f0;
+  --muted: #d1a3a3;
+  --accent: #d62828;
+  --accent-2: #ffb347;
+  --danger: #ff4d4d;
+  --border: #3a1a1a;
+}
+/* Rogue — Neon Veil */
+html[data-theme="rogueneon"] {
+  --bg: #0a0012;
+  --card: #150025;
+  --text: #e0faff;
+  --muted: #9eaebf;
+  --accent: #00f7ff;
+  --accent-2: #ff3ebf;
+  --danger: #ff4d8d;
+  --border: #261033;
+}

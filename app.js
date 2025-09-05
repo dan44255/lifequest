@@ -8,7 +8,7 @@ const CLASS_BONUS = {
   "Druid": { Daily: 1.1 },
   "Rogue": { Work: 1.1 }
 };
-const CLASS_THEME_MAP = { Ranger:'nature', Druid:'nature', Barbarian:'crimson', Rogue:'dark', Bard:'barddeep' };
+const CLASS_THEME_MAP = { Ranger:'rangerdeep', Druid:'druidmoss', Barbarian:'barbcrimson', Rogue:'rogueneon', Bard:'barddeep' };
 
 let state = {
   hero: { name: 'Stewart', cls: 'Ranger', level: 1, xp: 0 },
