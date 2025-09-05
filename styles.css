@@ -69,7 +69,7 @@ html[data-theme="barddeep"] .settings input[type="text"], html[data-theme="bardd
 html[data-theme="rangerdeep"] {
   --bg: #0b1d13;
   --card: #11271b;
-  --text: #e9fceb;
+  --text: #f0f4f2;
   --muted: #b5d1b7;
   --accent: #1f7a45;
   --accent-2: #a7c957;
@@ -80,7 +80,7 @@ html[data-theme="rangerdeep"] {
 html[data-theme="druidmoss"] {
   --bg: #1d261d;
   --card: #2a3228;
-  --text: #eef7ea;
+  --text: #f0f4f2;
   --muted: #c3d4c0;
   --accent: #5a7d4a;
   --accent-2: #9dbf9e;
@@ -91,7 +91,7 @@ html[data-theme="druidmoss"] {
 html[data-theme="barbcrimson"] {
   --bg: #0b0303;
   --card: #2a1212;
-  --text: #fff0f0;
+  --text: #f0f4f2;
   --muted: #d1a3a3;
   --accent: #d62828;
   --accent-2: #ffb347;
@@ -102,7 +102,7 @@ html[data-theme="barbcrimson"] {
 html[data-theme="rogueneon"] {
   --bg: #0a0012;
   --card: #150025;
-  --text: #e0faff;
+  --text: #f0f4f2;
   --muted: #9eaebf;
   --accent: #00f7ff;
   --accent-2: #ff3ebf;
