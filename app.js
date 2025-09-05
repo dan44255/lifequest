@@ -15,7 +15,7 @@
     questsDone: 0,
     filter: "all",
     search: "",
-    settings: { autoTheme: true, theme: "parchment" }
+    settings: { autoTheme: true, theme: "parchment" , sfxEnabled:false, sfxVolume:0.6}
   };
 
   function save() { localStorage.setItem(storeKey, JSON.stringify(state)); }
@@ -45,7 +45,36 @@
   }
   const fmt = d => new Date(d).toISOString().slice(0,10);
 
-  function showToast(msg) { const dlg = $("#toast"); $("#toastMsg").textContent = msg; dlg.showModal(); setTimeout(() => dlg.close(), 1300); }
+  
+  // --- Sound (safe) ---
+  let SFX = null;
+  function ensureSfx(){
+    if (SFX) return SFX;
+    try{
+      SFX = {
+        click: new Audio('./sounds/ui_click.wav'),
+        add: new Audio('./sounds/quest_add.wav'),
+        roll: new Audio('./sounds/roll.wav'),
+        complete: new Audio('./sounds/quest_complete.wav'),
+        badge: new Audio('./sounds/badge.wav')
+      };
+      Object.values(SFX).forEach(a => { a.volume = state.settings.sfxVolume || 0.6; });
+    }catch(e){ SFX = {}; }
+    return SFX;
+  }
+  function playSfx(name){
+    if (!state.settings.sfxEnabled) return;
+    try{
+      const bank = ensureSfx();
+      const a = bank[name];
+      if (!a) return;
+      a.currentTime = 0;
+      a.volume = state.settings.sfxVolume || 0.6;
+      a.play().catch(()=>{});
+    }catch(e){ /* never block */ }
+  }
+
+function showToast(msg) { const dlg = $("#toast"); $("#toastMsg").textContent = msg; dlg.showModal(); setTimeout(() => dlg.close(), 1300); }
 
   function renderHeader() {
     const { lvl, next, into, span } = levelForXp(state.xp);
@@ -176,11 +205,11 @@
     } else state.streak=1;
     state.lastDoneDate = today;
     if (q.neighbourhood) { const set = new Set(state.neighborhoods||[]); set.add(q.neighbourhood.trim()); state.neighborhoods = Array.from(set); }
-    maybeBadges(); save(); renderHeader(); renderStats(); renderQuests(); showToast(`+${gain} XP — Quest Complete!`);
+    maybeBadges(); save(); renderHeader(); renderStats(); renderQuests(); playSfx('complete'); showToast(`+${gain} XP — Quest Complete!`);
   }
 
   function maybeBadges() {
-    const add = (code,name) => { if (!state.badges.find(b=>b.code===code)) { state.badges.push({code,name,date:new Date().toISOString()}); showToast("🏅 "+name); }};
+    const add = (code,name) => { if (!state.badges.find(b=>b.code===code)) { state.badges.push({code,name,date:new Date().toISOString()}); playSfx('badge'); showToast("🏅 "+name); }};
     const { lvl } = levelForXp(state.xp);
     if (lvl>=5) add("lvl5","Level 5: Streetwise");
     if (lvl>=10) add("lvl10","Level 10: City Stalwart");
@@ -241,7 +270,7 @@
         due: $("#qDue").value,
         notes: $("#qNotes").value
       });
-      e.target.reset();
+      e.target.reset(); playSfx('add');
     });
     $("#addSample").addEventListener("click", addSamplePack);
     $("#openSettings").addEventListener("click", () => $("#settingsDialog").showModal());
@@ -250,6 +279,8 @@
       state.hero.cls=$("#heroClass").value;
       state.settings.autoTheme = $("#autoTheme").checked;
       state.settings.theme = $("#themeSelect").value;
+      state.settings.sfxEnabled = $("#sfxEnabled").checked;
+      state.settings.sfxVolume = (parseInt($("#sfxVolume").value,10)||60)/100;
       save(); renderAll();
     });
     $("#exportBtn").addEventListener("click", exportData);

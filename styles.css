@@ -67,3 +67,19 @@ html[data-theme="crimson"] .settings input[type="text"], html[data-theme="crimso
 .roll-row{display:flex;align-items:center;gap:10px;margin:8px 0 16px}
 .muted{color:var(--muted);font-size:13px}
 @media (max-width:800px){.grid{grid-template-columns:1fr}.quick-stats{grid-template-columns:repeat(2,1fr)}.xp-bar{width:180px}.search{width:200px}}
+/* Bard — Deep Purple (less beige, more purple) */
+html[data-theme="barddeep"]{
+  --bg: #1a1027;
+  --card: #241238;
+  --text: #f5ecff;
+  --muted: #c8b8dd;
+  --accent: #7c3aed;   /* deep violet */
+  --accent-2: #06b6d4; /* teal jewel */
+  --danger: #ff6b6b;
+  --border: #3a2852;
+}
+/* Light Adventure remains, but ensure readability */
+html[data-theme="light"]{
+  --bg:#f6f1e7; --card:#ffffff; --text:#1a1c20; --muted:#555d6b;
+  --accent:#2563eb; --accent-2:#16a34a; --border:#e3dfd7
+}
