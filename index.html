@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="parchment">
+<html lang="en" data-theme="barddeep">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -102,9 +102,10 @@
           <option value="neon">Rogue Neon</option>
           <option value="crimson">Barbarian Crimson</option>
           <option value="jewel">Bard Jewel</option>
+          <option value="barddeep" selected>Bard — Deep Purple</option>
         </select>
       </label>
-      <p class="hint">Auto mapping: Ranger/Druid → Nature • Barbarian → Crimson • Rogue → Neon • Bard → Parchment.</p>
+      <p class="hint">Auto mapping: Ranger/Druid → Nature • Barbarian → Crimson • Rogue → Dark • Bard → Bard Deep.</p>
 
       <p class="hint">Classes grant XP bonuses in certain categories:</p>
       <ul class="hint list">
@@ -132,7 +133,8 @@
     </div>
   </template>
 
-  <footer class="footer"><div>Made for Stewart • Full v8.1 • Offline-first • Data saved locally</div></footer>
-  <script src="app.js"></script>
+  <footer class="footer"><div>Made for Stewart • Full v8.2 • Offline-first • Data saved locally</div></footer>
+  <div id="debugBanner" style="position:fixed;bottom:12px;left:12px;background:#8b5cf6;color:#fff;padding:6px 10px;border-radius:8px;font:12px system-ui;z-index:9999;display:none"></div>
+  <script src="app.js?v=8.2"></script>
 </body>
 </html>
