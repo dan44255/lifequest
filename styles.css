@@ -109,3 +109,33 @@ html[data-theme="rogueneon"] {
   --danger: #ff4d8d;
   --border: #261033;
 }
+
+/* --- Settings Dialog Input Fix (v8.6) --- */
+
+/* Light themes → light background, dark text */
+html[data-theme="parchment"] .settings input,
+html[data-theme="parchment"] .settings select,
+html[data-theme="nature"] .settings input,
+html[data-theme="nature"] .settings select,
+html[data-theme="jewel"] .settings input,
+html[data-theme="jewel"] .settings select {
+  background: #ffffff;
+  color: #1c1a22;
+}
+
+/* Dark themes → dark background, light text */
+html[data-theme="rangerdeep"] .settings input,
+html[data-theme="rangerdeep"] .settings select,
+html[data-theme="druidmoss"] .settings input,
+html[data-theme="druidmoss"] .settings select,
+html[data-theme="barbcrimson"] .settings input,
+html[data-theme="barbcrimson"] .settings select,
+html[data-theme="rogueneon"] .settings input,
+html[data-theme="rogueneon"] .settings select,
+html[data-theme="dark"] .settings input,
+html[data-theme="dark"] .settings select,
+html[data-theme="barddeep"] .settings input,
+html[data-theme="barddeep"] .settings select {
+  background: #0f1218;
+  color: #f0f4f2;
+}
