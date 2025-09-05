@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="barddeep">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LifeQuest — Toronto Mode</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0f1115">
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="app-header">
@@ -30,7 +29,7 @@
     <div id="dmGreeting"></div>
     <div class="roll-row">
       <button id="rollBtn" class="primary">🎲 Roll Quest</button>
-      <span id="rollHint" class="muted">Get a tiny class-flavoured side quest</span>
+      <span class="muted">Get a tiny class-flavoured side quest</span>
     </div>
   </div>
 
@@ -81,7 +80,6 @@
       <h2>Quest Log</h2>
       <div id="questList" class="quest-list"></div>
       <div class="empty" id="emptyState">No quests yet. Forge your path above. 🔨</div>
-<div id="dmWhisper" class="whisper"></div>
     </section>
   </main>
 
@@ -103,23 +101,11 @@
           <option value="neon">Rogue Neon</option>
           <option value="crimson">Barbarian Crimson</option>
           <option value="jewel">Bard Jewel</option>
-          <option value="rangerdeep">Ranger — Deep Verdant</option>
-          <option value="druidmoss">Druid — Mossy Green</option>
-          <option value="barbcrimson">Barbarian — Crimson Forge</option>
-          <option value="rogueneon">Rogue — Neon Veil</option>
-          <option value="barddeep" selected>Bard — Deep Purple</option>
+          <option value="barddeep">Bard — Deep Purple</option>
         </select>
       </label>
-      <p class="hint">Auto mapping: Ranger/Druid → Nature • Barbarian → Crimson • Rogue → Dark • Bard → Bard Deep.</p>
+      <p class="hint">Auto mapping: Ranger/Druid → Nature • Barbarian → Crimson • Rogue → Neon • Bard → Parchment.</p>
 
-      <p class="hint">Classes grant XP bonuses in certain categories:</p>
-      <ul class="hint list">
-        <li>Ranger: +10% XP on Explore</li>
-        <li>Barbarian: +10% XP on Wellbeing</li>
-        <li>Bard: +10% XP on Community & Creative</li>
-        <li>Druid: +10% XP on Daily</li>
-        <li>Rogue: +10% XP on Work</li>
-      </ul>
       <div class="settings-row">
         <button class="ghost" id="exportBtn" type="button">Export Data</button>
         <label class="import-label"><input type="file" id="importFile" accept="application/json" hidden/><span class="ghost">Import Data</span></label>
@@ -138,8 +124,11 @@
     </div>
   </template>
 
-  <footer class="footer"><div>Made for Stewart • Full v8.7 • Offline-first • Data saved locally</div></footer>
+  <footer class="footer"><div>Made for Stewart • Full v8.2 • Offline-first • Data saved locally</div></footer>
+
+  <!-- tiny debug label so we know JS is live -->
   <div id="debugBanner" style="position:fixed;bottom:12px;left:12px;background:#8b5cf6;color:#fff;padding:6px 10px;border-radius:8px;font:12px system-ui;z-index:9999;display:none"></div>
-  <script src="app.js?v=8.7"></script>
+
+  <script src="app.js"></script>
 </body>
 </html>
