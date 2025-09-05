@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -26,7 +26,6 @@
     </div>
   </header>
 
-  <!-- Daily DM greeting + roll button -->
   <div class="container">
     <div id="dmGreeting"></div>
     <div class="roll-row">
@@ -92,6 +91,18 @@
       <label><span>Class</span>
         <select id="heroClass"><option>Ranger</option><option>Barbarian</option><option>Bard</option><option>Druid</option><option>Rogue</option></select>
       </label>
+
+      <h3>Appearance</h3>
+      <label class="row"><input type="checkbox" id="autoTheme"/> <span>Auto theme by class</span></label>
+      <label><span>Manual theme</span>
+        <select id="themeSelect">
+          <option value="light">Light Adventure</option>
+          <option value="dark">High-Contrast Dark</option>
+          <option value="nature">Nature Explorer</option>
+        </select>
+      </label>
+      <p class="hint">Auto mode maps: Ranger/Druid → Nature, Barbarian/Rogue → Dark, Bard → Light.</p>
+
       <p class="hint">Classes grant XP bonuses in certain categories:</p>
       <ul class="hint list">
         <li>Ranger: +10% XP on Explore</li>
@@ -118,7 +129,7 @@
     </div>
   </template>
 
-  <footer class="footer"><div>Made for Stewart • Full v4 • Offline-first • Data saved locally</div></footer>
+  <footer class="footer"><div>Made for Stewart • Full v6 • Offline-first • Data saved locally</div></footer>
   <script src="app.js"></script>
 </body>
 </html>

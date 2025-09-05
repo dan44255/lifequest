@@ -14,7 +14,8 @@
     neighborhoods: [],
     questsDone: 0,
     filter: "all",
-    search: ""
+    search: "",
+    settings: { autoTheme: true, theme: "nature" }
   };
 
   const DIFF_XP = { Trivial:5, Easy:10, Medium:25, Hard:50, Epic:100 };
@@ -31,6 +32,27 @@
     const raw = localStorage.getItem(storeKey);
     if (!raw) return;
     try { Object.assign(state, JSON.parse(raw)); } catch {}
+    // Backfill defaults
+    if (!state.settings) state.settings = { autoTheme: true, theme: "nature" };
+  }
+
+  // Theme logic
+  const CLASS_THEME_MAP = {
+    "Ranger": "nature",
+    "Druid": "nature",
+    "Barbarian": "dark",
+    "Rogue": "dark",
+    "Bard": "light"
+  };
+  function currentTheme(){
+    if (state.settings?.autoTheme) {
+      return CLASS_THEME_MAP[state.hero.cls] || "dark";
+    }
+    return state.settings?.theme || "dark";
+  }
+  function applyTheme(){
+    const theme = currentTheme();
+    document.documentElement.setAttribute('data-theme', theme);
   }
 
   function levelForXp(xp) {
@@ -270,18 +292,31 @@
     });
     $("#addSample").addEventListener("click", addSamplePack);
     $("#openSettings").addEventListener("click", () => $("#settingsDialog").showModal());
-    $("#saveSettings").addEventListener("click", () => { state.hero.name=$("#heroName").value||"Stewart"; state.hero.cls=$("#heroClass").value; save(); renderAll(); });
+    $("#saveSettings").addEventListener("click", () => {
+      state.hero.name=$("#heroName").value||"Stewart";
+      state.hero.cls=$("#heroClass").value;
+      state.settings.autoTheme = $("#autoTheme").checked;
+      state.settings.theme = $("#themeSelect").value;
+      save(); renderAll();
+    });
     $("#exportBtn").addEventListener("click", exportData);
     $("#importFile").addEventListener("change", e => { const f = e.target.files[0]; if (f) importData(f); });
     $("#resetBtn").addEventListener("click", resetAll);
     $("#tabs").addEventListener("click", e => { const b=e.target.closest('button.tab'); if(!b) return; $$(".tab").forEach(t=>t.classList.remove('active')); b.classList.add('active'); state.filter=b.dataset.filter; renderQuests(); });
     $("#search").addEventListener("input", e => { state.search = e.target.value; renderQuests(); });
     $("#rollBtn").addEventListener("click", rollQuest);
-    window.addEventListener('beforeunload', (e) => { const hasQuests = (state.quests||[]).length>0; if (hasQuests) { e.preventDefault(); e.returnValue=''; }});
   }
 
-  function renderSettings(){ $("#heroName").value = state.hero.name||""; $("#heroClass").value = state.hero.cls||"Ranger"; }
-  function renderAll(){ renderHeader(); renderStats(); renderGreeting(); renderQuests(); renderSettings(); }
+  function renderSettings(){
+    $("#heroName").value = state.hero.name||"";
+    $("#heroClass").value = state.hero.cls||"Ranger";
+    $("#autoTheme").checked = !!state.settings.autoTheme;
+    $("#themeSelect").value = state.settings.theme || "nature";
+    $("#themeSelect").disabled = !!state.settings.autoTheme;
+    $("#autoTheme").addEventListener("change", e => { $("#themeSelect").disabled = e.target.checked; });
+  }
+
+  function renderAll(){ applyTheme(); renderHeader(); renderStats(); renderGreeting(); renderQuests(); renderSettings(); }
 
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
   load(); bind(); renderAll();
