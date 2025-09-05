@@ -15,16 +15,7 @@
     questsDone: 0,
     filter: "all",
     search: "",
-    settings: { autoTheme: true, theme: "nature" }
-  };
-
-  const DIFF_XP = { Trivial:5, Easy:10, Medium:25, Hard:50, Epic:100 };
-  const CLASS_BONUS = {
-    "Ranger": { Explore: 1.10 },
-    "Barbarian": { Wellbeing: 1.10 },
-    "Bard": { Community: 1.10, Creative: 1.10 },
-    "Druid": { Daily: 1.10 },
-    "Rogue": { Work: 1.10 }
+    settings: { autoTheme: true, theme: "parchment" }
   };
 
   function save() { localStorage.setItem(storeKey, JSON.stringify(state)); }
@@ -32,28 +23,19 @@
     const raw = localStorage.getItem(storeKey);
     if (!raw) return;
     try { Object.assign(state, JSON.parse(raw)); } catch {}
-    // Backfill defaults
-    if (!state.settings) state.settings = { autoTheme: true, theme: "nature" };
+    if (!state.settings) state.settings = { autoTheme: true, theme: "parchment" };
   }
 
   // Theme logic
   const CLASS_THEME_MAP = {
     "Ranger": "nature",
     "Druid": "nature",
-    "Barbarian": "dark",
-    "Rogue": "dark",
-    "Bard": "light"
+    "Barbarian": "crimson",
+    "Rogue": "neon",
+    "Bard": "parchment"
   };
-  function currentTheme(){
-    if (state.settings?.autoTheme) {
-      return CLASS_THEME_MAP[state.hero.cls] || "dark";
-    }
-    return state.settings?.theme || "dark";
-  }
-  function applyTheme(){
-    const theme = currentTheme();
-    document.documentElement.setAttribute('data-theme', theme);
-  }
+  function currentTheme(){ return (state.settings?.autoTheme) ? (CLASS_THEME_MAP[state.hero.cls] || "parchment") : (state.settings?.theme || "parchment"); }
+  function applyTheme(){ document.documentElement.setAttribute('data-theme', currentTheme()); }
 
   function levelForXp(xp) {
     let lvl = 1, need = 100, total = 0;
@@ -61,22 +43,15 @@
     const next = total + need;
     return { lvl, next, into: xp - total, span: need };
   }
-
   const fmt = d => new Date(d).toISOString().slice(0,10);
 
-  function showToast(msg) {
-    const dlg = $("#toast"); $("#toastMsg").textContent = msg;
-    dlg.showModal(); setTimeout(() => dlg.close(), 1300);
-  }
+  function showToast(msg) { const dlg = $("#toast"); $("#toastMsg").textContent = msg; dlg.showModal(); setTimeout(() => dlg.close(), 1300); }
 
   function renderHeader() {
     const { lvl, next, into, span } = levelForXp(state.xp);
-    $("#level").textContent = lvl;
-    $("#xpText").textContent = state.xp;
-    $("#nextXp").textContent = next;
+    $("#level").textContent = lvl; $("#xpText").textContent = state.xp; $("#nextXp").textContent = next;
     $("#xpFill").style.width = Math.round((into/span)*100) + "%";
   }
-
   function renderStats() {
     $("#streak").textContent = state.streak || 0;
     $("#questsDone").textContent = state.questsDone || 0;
@@ -85,10 +60,8 @@
   }
 
   function renderGreeting(){
-    const holder = $("#dmGreeting");
-    if(!holder) return;
-    const name = state.hero.name || "Adventurer";
-    const cls = state.hero.cls || "Ranger";
+    const holder = $("#dmGreeting"); if(!holder) return;
+    const name = state.hero.name || "Adventurer"; const cls = state.hero.cls || "Ranger";
     const today = new Date();
     const seed = parseInt(new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'2-digit', day:'2-digit' }).format(today).replace(/[^0-9]/g,''), 10);
     function rand(n){ return (Math.abs(Math.sin(seed + n)) % 1); }
@@ -103,28 +76,21 @@
       "Druid": ["Do the small daily that stacks","Tend to your space","Breathe, then begin"],
       "Rogue": ["Upgrade one resume bullet","Apply to one role","Ship a 30-minute task"]
     };
-    const nudgeA = pick(dawns,1);
-    const nudgeB = pick(hooks,2);
-    const nudgeC = pick(stings,3);
-    const classPick = pick(classNudges[cls] || classNudges["Rogue"],4);
+    const nudgeA = pick(dawns,1); const nudgeB = pick(hooks,2); const nudgeC = pick(stings,3); const classPick = pick(classNudges[cls] || classNudges["Rogue"],4);
     holder.innerHTML = `<div class="dm-card"><div class="dm-title">🎲 ${name} the ${cls}</div><div class="dm-body">${nudgeA}. Today, ${nudgeB}. ${nudgeC} ${classPick}.</div><div class="dm-foot">Changes daily • Your save is local to this device</div></div>`;
   }
 
   function addQuest(d) {
     state.quests.push({
       id: Math.random().toString(36).slice(2,9),
-      title: d.title.trim(),
-      category: d.category,
-      difficulty: d.difficulty,
-      neighbourhood: d.neighbourhood?.trim() || "",
-      due: d.due || "",
-      notes: d.notes?.trim() || "",
+      title: d.title.trim(), category: d.category, difficulty: d.difficulty,
+      neighbourhood: d.neighbourhood?.trim() || "", due: d.due || "", notes: d.notes?.trim() || "",
       createdAt: Date.now()
     });
-    save(); renderQuests();
+    state.filter='all'; state.search=''; save(); renderQuests(); document.getElementById('questList').scrollIntoView({behavior:'smooth'});
   }
 
-  // 🎲 Roll Quest logic
+  // Roll Quest
   function rollQuest() {
     const today = fmt(new Date());
     if (state.lastRollDate === today) {
@@ -160,22 +126,14 @@
     };
     const picks = table[cls] || table["Rogue"];
     const item = picks[Math.floor(Math.random()*picks.length)];
-    addQuest({
-      title: "🎲 " + item.title,
-      category: item.cat,
-      difficulty: item.diff,
-      neighbourhood: "",
-      due: today,
-      notes: item.notes
-    });
-    state.lastRollDate = today;
-    save();
+    addQuest({ title: "🎲 " + item.title, category: item.cat, difficulty: item.diff, neighbourhood: "", due: today, notes: item.notes });
+    state.lastRollDate = today; save();
     showToast(`Side quest added: ${item.title} (+${item.xp||0} XP on completion)`);
   }
 
   function renderQuests() {
     const list = $("#questList"); list.innerHTML = "";
-    let qs = state.quests.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    let qs = state.quests.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
     if (state.filter!=="all") qs = qs.filter(q=>q.category===state.filter);
     if (state.search) { const s = state.search.toLowerCase(); qs = qs.filter(q => (q.title+q.notes).toLowerCase().includes(s)); }
     $("#emptyState").style.display = qs.length ? "none" : "block";
@@ -195,39 +153,34 @@
     });
   }
 
-  function applyBonus(cat, base) {
-    const mult = (CLASS_BONUS[state.hero.cls]||{})[cat] || 1;
-    return Math.round(base * mult);
-  }
+  const CLASS_BONUS = {
+    "Ranger": { Explore: 1.10 },
+    "Barbarian": { Wellbeing: 1.10 },
+    "Bard": { Community: 1.10, Creative: 1.10 },
+    "Druid": { Daily: 1.10 },
+    "Rogue": { Work: 1.10 }
+  };
+  function applyBonus(cat, base) { const mult = (CLASS_BONUS[state.hero.cls]||{})[cat] || 1; return Math.round(base * mult); }
 
   function completeQuest(id) {
     const i = state.quests.findIndex(q=>q.id===id); if (i===-1) return;
     const q = state.quests[i];
-    let gain = applyBonus(q.category, DIFF_XP[q.difficulty]||0);
-    state.xp += gain;
-    state.quests.splice(i,1);
-    state.questsDone = (state.questsDone||0)+1;
+    const diffXP = { Trivial:5, Easy:10, Medium:25, Hard:50, Epic:100 };
+    let gain = applyBonus(q.category, diffXP[q.difficulty]||0);
+    state.xp += gain; state.quests.splice(i,1); state.questsDone = (state.questsDone||0)+1;
     const today = fmt(new Date());
     if (state.lastDoneDate) {
       const prev = new Date(state.lastDoneDate);
       const diffDays = Math.floor((new Date(today)-new Date(fmt(prev)))/(24*3600*1000));
-      if (diffDays===1) state.streak=(state.streak||0)+1;
-      else if (diffDays===0){} else state.streak=1;
+      if (diffDays===1) state.streak=(state.streak||0)+1; else if (diffDays===0){} else state.streak=1;
     } else state.streak=1;
     state.lastDoneDate = today;
-    if (q.neighbourhood) {
-      const set = new Set(state.neighborhoods||[]); set.add(q.neighbourhood.trim());
-      state.neighborhoods = Array.from(set);
-    }
-    maybeBadges();
-    save(); renderHeader(); renderStats(); renderQuests();
-    showToast(`+${gain} XP — Quest Complete!`);
+    if (q.neighbourhood) { const set = new Set(state.neighborhoods||[]); set.add(q.neighbourhood.trim()); state.neighborhoods = Array.from(set); }
+    maybeBadges(); save(); renderHeader(); renderStats(); renderQuests(); showToast(`+${gain} XP — Quest Complete!`);
   }
 
   function maybeBadges() {
-    const add = (code,name) => {
-      if (!state.badges.find(b=>b.code===code)) { state.badges.push({code,name,date:new Date().toISOString()}); showToast("🏅 "+name); }
-    };
+    const add = (code,name) => { if (!state.badges.find(b=>b.code===code)) { state.badges.push({code,name,date:new Date().toISOString()}); showToast("🏅 "+name); }};
     const { lvl } = levelForXp(state.xp);
     if (lvl>=5) add("lvl5","Level 5: Streetwise");
     if (lvl>=10) add("lvl10","Level 10: City Stalwart");
@@ -239,7 +192,7 @@
     if ((state.streak||0)>=30) add("streak30","Monthly Streak");
   }
 
-  function deleteQuest(id) { state.quests = state.quests.filter(q=>q.id!==id); save(); renderQuests(); }
+  function deleteQuest(id) { state.quests = state.quests.filter(q=>q.id!==id); state.filter='all'; state.search=''; save(); renderQuests(); document.getElementById('questList').scrollIntoView({behavior:'smooth'}); }
   function editQuest(id) {
     const q = state.quests.find(x=>x.id===id); if(!q) return;
     const t = prompt("Edit title:", q.title); if (t===null) return; q.title=t.trim();
@@ -248,7 +201,7 @@
     const n = prompt("Edit neighbourhood:", q.neighbourhood); if (n!==null) q.neighbourhood=n;
     const due = prompt("Edit due date (YYYY-MM-DD):", q.due); if (due!==null) q.due=due;
     const notes = prompt("Edit notes:", q.notes); if (notes!==null) q.notes=notes;
-    save(); renderQuests();
+    state.filter='all'; state.search=''; save(); renderQuests(); document.getElementById('questList').scrollIntoView({behavior:'smooth'});
   }
 
   function exportData() {
@@ -311,7 +264,7 @@
     $("#heroName").value = state.hero.name||"";
     $("#heroClass").value = state.hero.cls||"Ranger";
     $("#autoTheme").checked = !!state.settings.autoTheme;
-    $("#themeSelect").value = state.settings.theme || "nature";
+    $("#themeSelect").value = state.settings.theme || "parchment";
     $("#themeSelect").disabled = !!state.settings.autoTheme;
     $("#autoTheme").addEventListener("change", e => { $("#themeSelect").disabled = e.target.checked; });
   }
