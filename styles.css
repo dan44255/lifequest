@@ -1,1 +1,11 @@
-/* simplified, full css included in previous answer */
+body{font-family:sans-serif;background:var(--bg);color:var(--text);padding:20px;}
+button{margin:4px;padding:6px 12px;border-radius:6px;border:0;cursor:pointer;background:var(--accent);color:#fff}
+#questList div{background:var(--card);margin:6px 0;padding:8px;border-radius:6px}
+/* Themes */
+html[data-theme="parchment"]{--bg:#f6f1e7;--card:#ffffff;--text:#1b1f24;--muted:#5c645d;--accent:#106b3d;--accent-2:#ca9b2c;--danger:#b91c1c;--border:#e6dfd3}
+html[data-theme="nature"]{--bg:#e9f2ea;--card:#ffffff;--text:#182016;--muted:#4c5d4c;--accent:#0f7a5f;--accent-2:#2ea043;--danger:#b91c1c;--border:#d6e6d7}
+html[data-theme="dark"]{--bg:#000;--card:#14161c;--text:#fff;--muted:#b8c0d0;--accent:#22d3ee;--accent-2:#34d399;--danger:#ff6b6b;--border:#2a2f3a}
+html[data-theme="neon"]{--bg:#050510;--card:#0e0f19;--text:#e6faff;--muted:#9fb3bf;--accent:#00e5ff;--accent-2:#6eff9a;--danger:#ff6b6b;--border:#1c2030}
+html[data-theme="crimson"]{--bg:#0e0a0a;--card:#1a1111;--text:#fff2f2;--muted:#d8b4b4;--accent:#d11a2a;--accent-2:#ffab3c;--danger:#ff6b6b;--border:#2a1618}
+html[data-theme="jewel"]{--bg:#f7f3ee;--card:#ffffff;--text:#1c1a22;--muted:#5a5a78;--accent:#6d28d9;--accent-2:#14b8a6;--danger:#ff6b6b;--border:#e8e2da}
+html[data-theme="barddeep"]{--bg:#1a1027;--card:#241238;--text:#f5ecff;--muted:#c8b8dd;--accent:#7c3aed;--accent-2:#06b6d4;--danger:#ff6b6b;--border:#3a2852}
