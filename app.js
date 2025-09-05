@@ -9,6 +9,7 @@
     quests: [],
     streak: 0,
     lastDoneDate: null,
+    lastRollDate: null,
     badges: [],
     neighborhoods: [],
     questsDone: 0,
@@ -61,6 +62,95 @@
     $("#badgeCount").textContent = (state.badges||[]).length;
   }
 
+  function renderGreeting(){
+    const holder = $("#dmGreeting");
+    if(!holder) return;
+    const name = state.hero.name || "Adventurer";
+    const cls = state.hero.cls || "Ranger";
+    const today = new Date();
+    const seed = parseInt(new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'2-digit', day:'2-digit' }).format(today).replace(/[^0-9]/g,''), 10);
+    function rand(n){ return (Math.abs(Math.sin(seed + n)) % 1); }
+    function pick(arr, n=0){ return arr[Math.floor(rand(n)*arr.length)] }
+    const dawns = ["A new day dawns","A fresh sun cuts through the haze","The city stirs like a sleeping dragon","Morning breaks over the rooftops","The wind carries rumors of XP"];
+    const hooks = ["track something worth finding","sharpen your focus with one clear quest","leave a marker in a new neighbourhood","earn XP with a tiny move that matters","follow the path of most curiosity"];
+    const stings = ["No audience required—just momentum.","Small steps, big story.","You don’t need perfect, only progress.","Today counts, even if it’s five minutes.","Courage first, polish later."];
+    const classNudges = {
+      "Ranger": ["Scout a new trail","Map a ravine loop","Find a quiet overlook"],
+      "Barbarian": ["Win a wellbeing duel","Do a hard thing early","Choose the cold plunge"],
+      "Bard": ["Speak to a stranger kindly","Draft a 4-line poem","Share a story tonight"],
+      "Druid": ["Do the small daily that stacks","Tend to your space","Breathe, then begin"],
+      "Rogue": ["Upgrade one resume bullet","Apply to one role","Ship a 30-minute task"]
+    };
+    const nudgeA = pick(dawns,1);
+    const nudgeB = pick(hooks,2);
+    const nudgeC = pick(stings,3);
+    const classPick = pick(classNudges[cls] || classNudges["Rogue"],4);
+    holder.innerHTML = `<div class="dm-card"><div class="dm-title">🎲 ${name} the ${cls}</div><div class="dm-body">${nudgeA}. Today, ${nudgeB}. ${nudgeC} ${classPick}.</div><div class="dm-foot">Changes daily • Your save is local to this device</div></div>`;
+  }
+
+  function addQuest(d) {
+    state.quests.push({
+      id: Math.random().toString(36).slice(2,9),
+      title: d.title.trim(),
+      category: d.category,
+      difficulty: d.difficulty,
+      neighbourhood: d.neighbourhood?.trim() || "",
+      due: d.due || "",
+      notes: d.notes?.trim() || "",
+      createdAt: Date.now()
+    });
+    save(); renderQuests();
+  }
+
+  // 🎲 Roll Quest logic
+  function rollQuest() {
+    const today = fmt(new Date());
+    if (state.lastRollDate === today) {
+      if (!confirm("You already rolled today. Roll again and add another side quest?")) return;
+    }
+    const cls = state.hero.cls || "Rogue";
+    const table = {
+      "Ranger": [
+        { title:"Walk a street you've never taken", cat:"Explore", diff:"Easy", xp:10, notes:"Scout & note one detail" },
+        { title:"Map a 20-min ravine loop", cat:"Explore", diff:"Medium", xp:25, notes:"Time it; mark start point" },
+        { title:"Find a quiet overlook", cat:"Explore", diff:"Easy", xp:10, notes:"Breathe for 2 minutes" }
+      ],
+      "Barbarian": [
+        { title:"Finish shower on cold for 30s", cat:"Wellbeing", diff:"Trivial", xp:5, notes:"Roar optional" },
+        { title:"Do 15 push-ups today", cat:"Wellbeing", diff:"Easy", xp:10, notes:"Split sets fine" },
+        { title:"One ‘hard thing’ before noon", cat:"Wellbeing", diff:"Medium", xp:25, notes:"Name it, then do it" }
+      ],
+      "Bard": [
+        { title:"Write four lines of verse", cat:"Creative", diff:"Easy", xp:15, notes:"Keep one vivid image" },
+        { title:"Say one kind thing to a stranger", cat:"Community", diff:"Easy", xp:10, notes:"Genuine counts" },
+        { title:"Tell a 60s story tonight", cat:"Community", diff:"Medium", xp:25, notes:"Any audience is fine" }
+      ],
+      "Druid": [
+        { title:"Tidy one small surface", cat:"Daily", diff:"Trivial", xp:5, notes:"Before/after photo optional" },
+        { title:"10-min walk with deep breaths", cat:"Daily", diff:"Easy", xp:10, notes:"Count 30 steady breaths" },
+        { title:"Prep tomorrow’s water/gear", cat:"Daily", diff:"Easy", xp:10, notes:"Set it by the door" }
+      ],
+      "Rogue": [
+        { title:"Send one bold application", cat:"Work", diff:"Medium", xp:25, notes:"Short + confident" },
+        { title:"Upgrade a resume bullet", cat:"Work", diff:"Easy", xp:10, notes:"Add metric & impact" },
+        { title:"Ship one 30-min task", cat:"Work", diff:"Easy", xp:10, notes:"Timer on, go" }
+      ]
+    };
+    const picks = table[cls] || table["Rogue"];
+    const item = picks[Math.floor(Math.random()*picks.length)];
+    addQuest({
+      title: "🎲 " + item.title,
+      category: item.cat,
+      difficulty: item.diff,
+      neighbourhood: "",
+      due: today,
+      notes: item.notes
+    });
+    state.lastRollDate = today;
+    save();
+    showToast(`Side quest added: ${item.title} (+${item.xp||0} XP on completion)`);
+  }
+
   function renderQuests() {
     const list = $("#questList"); list.innerHTML = "";
     let qs = state.quests.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
@@ -95,7 +185,6 @@
     state.xp += gain;
     state.quests.splice(i,1);
     state.questsDone = (state.questsDone||0)+1;
-
     const today = fmt(new Date());
     if (state.lastDoneDate) {
       const prev = new Date(state.lastDoneDate);
@@ -104,12 +193,10 @@
       else if (diffDays===0){} else state.streak=1;
     } else state.streak=1;
     state.lastDoneDate = today;
-
     if (q.neighbourhood) {
       const set = new Set(state.neighborhoods||[]); set.add(q.neighbourhood.trim());
       state.neighborhoods = Array.from(set);
     }
-
     maybeBadges();
     save(); renderHeader(); renderStats(); renderQuests();
     showToast(`+${gain} XP — Quest Complete!`);
@@ -130,22 +217,7 @@
     if ((state.streak||0)>=30) add("streak30","Monthly Streak");
   }
 
-  function addQuest(d) {
-    state.quests.push({
-      id: Math.random().toString(36).slice(2,9),
-      title: d.title.trim(),
-      category: d.category,
-      difficulty: d.difficulty,
-      neighbourhood: d.neighbourhood?.trim() || "",
-      due: d.due || "",
-      notes: d.notes?.trim() || "",
-      createdAt: Date.now()
-    });
-    save(); renderQuests();
-  }
-
   function deleteQuest(id) { state.quests = state.quests.filter(q=>q.id!==id); save(); renderQuests(); }
-
   function editQuest(id) {
     const q = state.quests.find(x=>x.id===id); if(!q) return;
     const t = prompt("Edit title:", q.title); if (t===null) return; q.title=t.trim();
@@ -204,11 +276,12 @@
     $("#resetBtn").addEventListener("click", resetAll);
     $("#tabs").addEventListener("click", e => { const b=e.target.closest('button.tab'); if(!b) return; $$(".tab").forEach(t=>t.classList.remove('active')); b.classList.add('active'); state.filter=b.dataset.filter; renderQuests(); });
     $("#search").addEventListener("input", e => { state.search = e.target.value; renderQuests(); });
+    $("#rollBtn").addEventListener("click", rollQuest);
     window.addEventListener('beforeunload', (e) => { const hasQuests = (state.quests||[]).length>0; if (hasQuests) { e.preventDefault(); e.returnValue=''; }});
   }
 
   function renderSettings(){ $("#heroName").value = state.hero.name||""; $("#heroClass").value = state.hero.cls||"Ranger"; }
-  function renderAll(){ renderHeader(); renderStats(); renderQuests(); renderSettings(); }
+  function renderAll(){ renderHeader(); renderStats(); renderGreeting(); renderQuests(); renderSettings(); }
 
   if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
   load(); bind(); renderAll();
