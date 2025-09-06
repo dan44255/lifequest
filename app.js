@@ -6,6 +6,7 @@ const state = {
   streak: 0, lastDone: null,
   badges: [],
   quests: [],
+  lore: [],
   filter: 'all',
   search: '',
   settings: { autoTheme: false, theme: "barddeep" }
@@ -23,8 +24,8 @@ const CLASS_BONUS = {
 const CLASS_THEME_MAP = { Ranger: "nature", Druid: "nature", Barbarian: "crimson", Rogue: "neon", Bard: "parchment" };
 
 // ---------- Storage ----------
-function save(){ localStorage.setItem("lifequest-v84", JSON.stringify(state)); }
-function load(){ try{ const d = localStorage.getItem("lifequest-v84"); if(d){ Object.assign(state, JSON.parse(d)); } }catch(e){} }
+function save(){ localStorage.setItem("lifequest-pwa-v1", JSON.stringify(state)); }
+function load(){ try{ const d = localStorage.getItem("lifequest-pwa-v1"); if(d){ Object.assign(state, JSON.parse(d)); } }catch(e){} }
 
 // ---------- Theme ----------
 function currentTheme(){ return state.settings.autoTheme ? (CLASS_THEME_MAP[state.hero.cls]||"parchment") : (state.settings.theme||"parchment"); }
@@ -33,7 +34,89 @@ function applyTheme(){ document.documentElement.setAttribute('data-theme', curre
 // ---------- Helpers ----------
 const $ = s => document.querySelector(s);
 function showToast(msg){ const d=$("#toast"); const m=$("#toastMsg"); if(!d||!m) return; m.textContent=msg; d.show(); setTimeout(()=>d.close(),1000); }
-function formatDate(ts){ const d = new Date(ts); return d.toLocaleDateString(); }
+
+// ---------- Daily DM Narration ----------
+function dailyGreeting() {
+  const name = state.hero?.name || "Adventurer";
+  const cls  = state.hero?.cls  || "Wanderer";
+  const s    = state.streak || 0;
+
+  const LINES = {
+    Ranger: [
+      "You read the wind between towers. One path must be walked today.",
+      "City-forest whispers: a small hunt, a sure victory.",
+      "Track marks fade at dusk—move before they do."
+    ],
+    Barbarian: [
+      "Steel hums. Choose a weight to lift—or a fear to drop.",
+      "Thunder in the bones. A hard thing becomes simple.",
+      "Break the day into pieces. Break one now."
+    ],
+    Bard: [
+      "Your verse is half-sung. Finish it with a tiny rhythm.",
+      "Some doors open to a smile. Try one.",
+      "Tune the day: one bold note, then two softer ones."
+    ],
+    Druid: [
+      "Breathe with the morning. One gentle change shapes the day.",
+      "Tend a corner of your world; watch it answer back.",
+      "Grow by inches. The forest does."
+    ],
+    Rogue: [
+      "Slip past friction. One clever move for advantage.",
+      "Scout, simplify, strike. Then vanish back to calm.",
+      "Edge ahead quietly; results will make the noise."
+    ],
+    Wanderer: [
+      "Today is a small dungeon. Pack light, step true.",
+      "Pick a door, not all of them.",
+      "Roll once, then move."
+    ]
+  };
+
+  const pool = LINES[cls] || LINES.Wanderer;
+  const spice =
+    s >= 7 ? "A full week of wins—fate nods." :
+    s >= 3 ? "Momentum carries you; keep it light." :
+             "Every saga begins with one clear quest.";
+  const seed = new Date().toDateString().length % pool.length;
+  const line = pool[seed];
+  return `${name} the ${cls} — ${line} <br><span class="muted">${spice}</span>`;
+}
+function renderGreeting(){ const el = document.getElementById("dmGreeting"); if (!el) return; el.innerHTML = `<div class="dm-card">${dailyGreeting()}</div>`; }
+
+// ---------- Lore Journal ----------
+function recordLore(entry) {
+  const note = { t: Date.now(), ...entry };
+  state.lore.unshift(note);
+  if (state.lore.length > 500) state.lore.length = 500;
+  save();
+}
+function renderLore() {
+  const host = document.getElementById("loreList");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!state.lore.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Your story begins… complete a quest to write the first line.";
+    host.appendChild(empty);
+    return;
+  }
+  state.lore.forEach(n => {
+    const row = document.createElement("div");
+    row.className = "quest-item";
+    const when = new Date(n.t).toLocaleString();
+    row.innerHTML = `
+      <div class="quest-main">
+        <div class="quest-title">${n.title || "Untitled deed"}</div>
+        <div class="quest-meta">${when}${n.deltaXp ? " • +" + n.deltaXp + " XP" : ""}</div>
+      </div>
+      <div class="quest-actions"></div>
+    `;
+    host.appendChild(row);
+  });
+}
 
 // ---------- Rendering ----------
 function renderHeader(){
@@ -49,21 +132,6 @@ function renderStats(){
   $("#badgeCount").textContent = state.badges.length;
   $("#streak").textContent = state.streak||0;
 }
-function dailyGreeting(){
-  const name = state.hero.name || "Adventurer";
-  const cls = state.hero.cls || "Wanderer";
-  const flavour = [
-    "Sharpen focus with one clear quest.",
-    "Today counts, even if it's five minutes.",
-    "Scout a quiet corner. Listen for clues.",
-    "Trade doomscrolling for a tiny win.",
-    "Add one friendly hello to your map."
-  ];
-  const seed = new Date().toDateString().length % flavour.length;
-  return `${name} the ${cls} — ${flavour[seed]} <br><span class="muted">Your save is local to this device.</span>`;
-}
-function renderGreeting(){ $("#dmGreeting").innerHTML = `<div class="dm-card">${dailyGreeting()}</div>`; }
-
 function renderQuests(){
   const list = $("#questList"); const empty = $("#emptyState");
   list.innerHTML = "";
@@ -114,7 +182,7 @@ function updateStreakOnComplete(){
   else{
     last.setHours(0,0,0,0);
     const diffDays = (today - last)/(24*3600*1000);
-    if (diffDays===0){ /* same day, keep streak */ }
+    if (diffDays===0){ /* same day, keep */ }
     else if (diffDays===1){ state.streak = (state.streak||0)+1; }
     else { state.streak = 1; }
   }
@@ -124,12 +192,10 @@ function recalcBadges(){
   const badges = new Set(state.badges);
   const done = state.quests.filter(q=>q.done).length;
   const nhoods = new Set(state.quests.filter(q=>q.neighbourhood).map(q=>q.neighbourhood.toLowerCase().trim())).size;
-
   if (done>=1) badges.add("First Steps");
   if (done>=10) badges.add("Tenacious");
   if (nhoods>=3) badges.add("Explorer I");
   if ((state.streak||0)>=3) badges.add("Streak 3");
-
   state.badges = Array.from(badges);
 }
 
@@ -159,6 +225,7 @@ function completeQuest(q){
   addXp(gain);
   updateStreakOnComplete();
   recalcBadges();
+  recordLore({ title: `Completed: ${q.title}`, deltaXp: gain, flavour: q.category || "Quest" });
   save(); renderStats(); renderQuests();
   showToast(`+${gain} XP — Quest Complete!`);
 }
@@ -255,7 +322,12 @@ function bind(){
   });
   document.getElementById('resetBtn')?.addEventListener('click', ()=>{
     if (!confirm("Reset all data?")) return;
-    localStorage.removeItem('lifequest-v84'); location.reload();
+    localStorage.removeItem('lifequest-pwa-v1'); location.reload();
+  });
+
+  document.getElementById('openLore')?.addEventListener('click', ()=>{
+    renderLore();
+    document.getElementById('loreDialog').showModal();
   });
 }
 

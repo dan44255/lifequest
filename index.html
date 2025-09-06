@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LifeQuest — v8.4</title>
+  <title>LifeQuest — PWA v1</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#7c3aed">
 </head>
 <body>
   <header class="app-header">
     <div class="brand">
       <div class="brand-icon">🧭</div>
-      <div class="brand-title">LifeQuest <span class="mode">— Toronto Mode</span></div>
+      <div class="brand-title">LifeQuest <span class="mode">— PWA v1</span></div>
     </div>
     <div class="profile">
       <div class="level-wrap">
@@ -21,7 +22,8 @@
         <div class="xp-bar"><div id="xpFill" class="xp-fill" style="width:0%"></div></div>
         <div class="xp-text"><span id="xpText">0</span> / <span id="nextXp">100</span> XP</div>
       </div>
-      <button id="openSettings" class="ghost">⚙️</button>
+      <button id="openLore" class="ghost" title="Lore Journal">📖</button>
+      <button id="openSettings" class="ghost" title="Settings">⚙️</button>
     </div>
   </header>
 
@@ -29,7 +31,7 @@
     <div id="dmGreeting"></div>
     <div class="roll-row">
       <button id="rollBtn" class="primary">🎲 Roll Quest</button>
-      <span class="muted">Get a tiny class-flavoured side quest</span>
+      <span class="muted">Tiny, class-flavoured quest</span>
     </div>
   </div>
 
@@ -51,7 +53,7 @@
         <button data-filter="Community" class="tab">Community</button>
         <button data-filter="Creative" class="tab">Creative</button>
       </div>
-      <div><input id="search" class="search" placeholder="Search quests…"/></div>
+      <div><input id="search" class="search" placeholder="Search quests…"></div>
     </section>
 
     <section class="new-quest">
@@ -117,6 +119,14 @@
     </form>
   </dialog>
 
+  <dialog id="loreDialog">
+    <div class="settings" style="max-width:720px">
+      <h3>Lore Journal</h3>
+      <div id="loreList" class="quest-list"></div>
+      <menu><button value="cancel">Close</button></menu>
+    </div>
+  </dialog>
+
   <dialog id="toast"><div id="toastMsg"></div></dialog>
 
   <template id="questItemTpl">
@@ -133,9 +143,9 @@
     </div>
   </template>
 
-  <footer class="footer"><div>Made for Stewart • Full v8.4 • Offline-first • Data saved locally</div></footer>
+  <footer class="footer"><div>LifeQuest PWA v1 • Offline-ready • Local save</div></footer>
 
   <div id="debugBanner" style="position:fixed;bottom:12px;left:12px;background:#8b5cf6;color:#fff;padding:6px 10px;border-radius:8px;font:12px system-ui;z-index:9999;display:none"></div>
-  <script src="app.js"></script>
+  <script src="app.js?v=1"></script>
 </body>
 </html>
